@@ -12,43 +12,32 @@ const UI = {
   progress: $("progress")
 };
 
-const BUTTONS = () =>
-  document.querySelectorAll("button");
+function buttons() {
+  return document.querySelectorAll("button");
+}
 
 function setBusy(state) {
 
-  BUTTONS().forEach(
-    btn => btn.disabled = state
-  );
+  buttons().forEach(btn => {
+    if (btn.id !== "resetBtn")
+      btn.disabled = state;
+  });
 
   if (state) {
 
-    UI.loading.classList.remove(
-      "hidden"
-    );
-
-    UI.progress.classList.remove(
-      "hidden"
-    );
+    UI.loading.classList.add("active");
+    UI.progress.classList.add("active");
 
   } else {
 
-    UI.loading.classList.add(
-      "hidden"
-    );
-
-    UI.progress.classList.add(
-      "hidden"
-    );
+    UI.loading.classList.remove("active");
+    UI.progress.classList.remove("active");
+    UI.progress.textContent = "0%";
 
   }
-
 }
 
-function updateProgress(
-  current,
-  total
-) {
+function updateProgress(current, total) {
 
   if (total <= 0n) {
     UI.progress.textContent = "0%";
@@ -61,7 +50,6 @@ function updateProgress(
 
   UI.progress.textContent =
     `${percent}%`;
-
 }
 
 function toBigInt(value) {
@@ -69,14 +57,10 @@ function toBigInt(value) {
   const str = value.trim();
 
   if (!str)
-    throw new Error(
-      "Number required"
-    );
+    throw new Error("Number required");
 
   if (!/^-?\d+$/.test(str))
-    throw new Error(
-      "Integers only"
-    );
+    throw new Error("Integers only");
 
   return BigInt(str);
 }
@@ -97,6 +81,15 @@ function getRange() {
   return { min, max };
 }
 
+function showError(message) {
+
+  UI.count.textContent =
+    "0 results";
+
+  UI.result.innerHTML =
+    `<div class="error">${message}</div>`;
+}
+
 function render(list) {
 
   UI.count.textContent =
@@ -112,19 +105,13 @@ function render(list) {
 
   UI.result.innerHTML = `
   <div class="numbers">
-  ${list.map(n =>
-    `<span>${n}</span>`
-  ).join("")}
-  </div>`;
-}
-
-function showError(message) {
-
-  UI.count.textContent =
-    "0 results";
-
-  UI.result.innerHTML =
-    `<div class="error">${message}</div>`;
+    ${
+      list.map(n =>
+        `<span>${n.toString()}</span>`
+      ).join("")
+    }
+  </div>
+  `;
 }
 
 function bigintSqrt(n) {
@@ -274,8 +261,7 @@ async function calculateDivisible() {
         );
 
         await new Promise(
-          r =>
-            setTimeout(r, 0)
+          r => setTimeout(r, 0)
         );
 
       }
@@ -286,16 +272,13 @@ async function calculateDivisible() {
 
   } catch (e) {
 
-    showError(
-      e.message
-    );
+    showError(e.message);
 
   } finally {
 
     setBusy(false);
 
   }
-
 }
 
 async function commonDivisorsRange() {
@@ -312,10 +295,14 @@ async function commonDivisorsRange() {
       getRange();
 
     const a =
-      toBigInt(UI.num1.value);
+      toBigInt(
+        UI.num1.value
+      );
 
     const b =
-      toBigInt(UI.num2.value);
+      toBigInt(
+        UI.num2.value
+      );
 
     const total =
       max - min + 1n;
@@ -349,8 +336,7 @@ async function commonDivisorsRange() {
         );
 
         await new Promise(
-          r =>
-            setTimeout(r, 0)
+          r => setTimeout(r, 0)
         );
 
       }
@@ -361,16 +347,13 @@ async function commonDivisorsRange() {
 
   } catch (e) {
 
-    showError(
-      e.message
-    );
+    showError(e.message);
 
   } finally {
 
     setBusy(false);
 
   }
-
 }
 
 async function primeNumbers() {
@@ -417,8 +400,7 @@ async function primeNumbers() {
         );
 
         await new Promise(
-          r =>
-            setTimeout(r, 0)
+          r => setTimeout(r, 0)
         );
 
       }
@@ -429,16 +411,13 @@ async function primeNumbers() {
 
   } catch (e) {
 
-    showError(
-      e.message
-    );
+    showError(e.message);
 
   } finally {
 
     setBusy(false);
 
   }
-
 }
 
 async function squareNumbers() {
@@ -465,7 +444,7 @@ async function squareNumbers() {
       i += 1n;
     }
 
-    let step = 0n;
+    let count = 0n;
 
     while (
       i * i <= max
@@ -476,18 +455,17 @@ async function squareNumbers() {
       );
 
       i += 1n;
-      step++;
+      count++;
 
       if (
-        step % 1000n === 0n
+        count % 1000n === 0n
       ) {
 
         UI.progress.textContent =
-          `${step}`;
+          `${count}`;
 
         await new Promise(
-          r =>
-            setTimeout(r, 0)
+          r => setTimeout(r, 0)
         );
 
       }
@@ -498,16 +476,13 @@ async function squareNumbers() {
 
   } catch (e) {
 
-    showError(
-      e.message
-    );
+    showError(e.message);
 
   } finally {
 
     setBusy(false);
 
   }
-
 }
 
 async function cubeNumbers() {
@@ -534,7 +509,7 @@ async function cubeNumbers() {
       i += 1n;
     }
 
-    let step = 0n;
+    let count = 0n;
 
     while (
       i * i * i <= max
@@ -545,18 +520,17 @@ async function cubeNumbers() {
       );
 
       i += 1n;
-      step++;
+      count++;
 
       if (
-        step % 1000n === 0n
+        count % 1000n === 0n
       ) {
 
         UI.progress.textContent =
-          `${step}`;
+          `${count}`;
 
         await new Promise(
-          r =>
-            setTimeout(r, 0)
+          r => setTimeout(r, 0)
         );
 
       }
@@ -567,16 +541,13 @@ async function cubeNumbers() {
 
   } catch (e) {
 
-    showError(
-      e.message
-    );
+    showError(e.message);
 
   } finally {
 
     setBusy(false);
 
   }
-
 }
 
 async function copyResults() {
@@ -599,18 +570,15 @@ async function copyResults() {
     );
 
   }
-
 }
 
 function clearAll() {
 
   document
     .querySelectorAll("input")
-    .forEach(
-      input => {
-        input.value = "";
-      }
-    );
+    .forEach(input => {
+      input.value = "";
+    });
 
   localStorage.clear();
 
@@ -620,6 +588,8 @@ function clearAll() {
   UI.result.textContent =
     "Results will appear here.";
 
+  UI.progress.textContent =
+    "0%";
 }
 
 document
