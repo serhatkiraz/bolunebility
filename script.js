@@ -7,31 +7,124 @@ const UI = {
   num1: $("num1"),
   num2: $("num2"),
   result: $("result"),
-  count: $("resultCount")
+  count: $("resultCount"),
+  loading: $("loading"),
+  progress: $("progress")
 };
+
+const BUTTONS = () =>
+  document.querySelectorAll("button");
+
+function setBusy(state) {
+
+  BUTTONS().forEach(
+    btn => btn.disabled = state
+  );
+
+  if (state) {
+
+    UI.loading.classList.remove(
+      "hidden"
+    );
+
+    UI.progress.classList.remove(
+      "hidden"
+    );
+
+  } else {
+
+    UI.loading.classList.add(
+      "hidden"
+    );
+
+    UI.progress.classList.add(
+      "hidden"
+    );
+
+  }
+
+}
+
+function updateProgress(
+  current,
+  total
+) {
+
+  if (total <= 0n) {
+    UI.progress.textContent = "0%";
+    return;
+  }
+
+  const percent = Number(
+    current * 100n / total
+  );
+
+  UI.progress.textContent =
+    `${percent}%`;
+
+}
 
 function toBigInt(value) {
 
   const str = value.trim();
 
   if (!str)
-    throw new Error("Number required");
+    throw new Error(
+      "Number required"
+    );
 
   if (!/^-?\d+$/.test(str))
-    throw new Error("Integers only");
+    throw new Error(
+      "Integers only"
+    );
 
   return BigInt(str);
 }
 
 function getRange() {
 
-  const min = toBigInt(UI.min.value);
-  const max = toBigInt(UI.max.value);
+  const min =
+    toBigInt(UI.min.value);
+
+  const max =
+    toBigInt(UI.max.value);
 
   if (min > max)
-    throw new Error("Start must be smaller than end.");
+    throw new Error(
+      "Start must be smaller than end."
+    );
 
   return { min, max };
+}
+
+function render(list) {
+
+  UI.count.textContent =
+    `${list.length} results`;
+
+  if (!list.length) {
+
+    UI.result.textContent =
+      "No results found.";
+
+    return;
+  }
+
+  UI.result.innerHTML = `
+  <div class="numbers">
+  ${list.map(n =>
+    `<span>${n}</span>`
+  ).join("")}
+  </div>`;
+}
+
+function showError(message) {
+
+  UI.count.textContent =
+    "0 results";
+
+  UI.result.innerHTML =
+    `<div class="error">${message}</div>`;
 }
 
 function bigintSqrt(n) {
@@ -48,8 +141,12 @@ function bigintSqrt(n) {
   let y = (x + 1n) >> 1n;
 
   while (y < x) {
+
     x = y;
-    y = (x + n / x) >> 1n;
+
+    y =
+      (x + n / x) >> 1n;
+
   }
 
   return x;
@@ -60,7 +157,8 @@ function bigintCbrt(n) {
   if (n === 0n)
     return 0n;
 
-  const negative = n < 0n;
+  const negative =
+    n < 0n;
 
   if (negative)
     n = -n;
@@ -121,48 +219,21 @@ function isPrime(n) {
     ) {
       return false;
     }
+
   }
 
   return true;
 }
 
-function render(list) {
-
-  UI.count.textContent =
-    `${list.length} results`;
-
-  if (!list.length) {
-
-    UI.result.textContent =
-      "No results found.";
-
-    return;
-  }
-
-  UI.result.innerHTML = `
-  <div class="numbers">
-    ${list
-      .map(
-        n =>
-          `<span>${n.toString()}</span>`
-      )
-      .join("")
-    }
-  </div>`;
-}
-
-function showError(msg) {
-
-  UI.count.textContent =
-    "0 results";
-
-  UI.result.innerHTML =
-    `<div class="error">${msg}</div>`;
-}
-
-function calculateDivisible() {
+async function calculateDivisible() {
 
   try {
+
+    setBusy(true);
+
+    await new Promise(
+      r => setTimeout(r, 10)
+    );
 
     const { min, max } =
       getRange();
@@ -172,7 +243,12 @@ function calculateDivisible() {
         UI.divisor.value
       );
 
+    const total =
+      max - min + 1n;
+
     const result = [];
+
+    let step = 0n;
 
     for (
       let i = min;
@@ -180,25 +256,57 @@ function calculateDivisible() {
       i += 1n
     ) {
 
+      step++;
+
       if (
         i % divisor === 0n
       ) {
         result.push(i);
       }
+
+      if (
+        step % 1000n === 0n
+      ) {
+
+        updateProgress(
+          step,
+          total
+        );
+
+        await new Promise(
+          r =>
+            setTimeout(r, 0)
+        );
+
+      }
+
     }
 
     render(result);
 
   } catch (e) {
 
-    showError(e.message);
+    showError(
+      e.message
+    );
+
+  } finally {
+
+    setBusy(false);
 
   }
+
 }
 
-function commonDivisorsRange() {
+async function commonDivisorsRange() {
 
   try {
+
+    setBusy(true);
+
+    await new Promise(
+      r => setTimeout(r, 10)
+    );
 
     const { min, max } =
       getRange();
@@ -209,13 +317,20 @@ function commonDivisorsRange() {
     const b =
       toBigInt(UI.num2.value);
 
+    const total =
+      max - min + 1n;
+
     const result = [];
+
+    let step = 0n;
 
     for (
       let i = min;
       i <= max;
       i += 1n
     ) {
+
+      step++;
 
       if (
         i % a === 0n &&
@@ -223,25 +338,60 @@ function commonDivisorsRange() {
       ) {
         result.push(i);
       }
+
+      if (
+        step % 1000n === 0n
+      ) {
+
+        updateProgress(
+          step,
+          total
+        );
+
+        await new Promise(
+          r =>
+            setTimeout(r, 0)
+        );
+
+      }
+
     }
 
     render(result);
 
   } catch (e) {
 
-    showError(e.message);
+    showError(
+      e.message
+    );
+
+  } finally {
+
+    setBusy(false);
 
   }
+
 }
 
-function primeNumbers() {
+async function primeNumbers() {
 
   try {
+
+    setBusy(true);
+
+    await new Promise(
+      r => setTimeout(r, 10)
+    );
 
     const { min, max } =
       getRange();
 
+    const total =
+      max - min + 1n;
+
     const result = [];
+
+    let step = 0n;
 
     for (
       let i = min;
@@ -249,25 +399,57 @@ function primeNumbers() {
       i += 1n
     ) {
 
+      step++;
+
       if (
         isPrime(i)
       ) {
         result.push(i);
       }
+
+      if (
+        step % 100n === 0n
+      ) {
+
+        updateProgress(
+          step,
+          total
+        );
+
+        await new Promise(
+          r =>
+            setTimeout(r, 0)
+        );
+
+      }
+
     }
 
     render(result);
 
   } catch (e) {
 
-    showError(e.message);
+    showError(
+      e.message
+    );
+
+  } finally {
+
+    setBusy(false);
 
   }
+
 }
 
-function squareNumbers() {
+async function squareNumbers() {
 
   try {
+
+    setBusy(true);
+
+    await new Promise(
+      r => setTimeout(r, 10)
+    );
 
     const { min, max } =
       getRange();
@@ -283,6 +465,8 @@ function squareNumbers() {
       i += 1n;
     }
 
+    let step = 0n;
+
     while (
       i * i <= max
     ) {
@@ -292,20 +476,49 @@ function squareNumbers() {
       );
 
       i += 1n;
+      step++;
+
+      if (
+        step % 1000n === 0n
+      ) {
+
+        UI.progress.textContent =
+          `${step}`;
+
+        await new Promise(
+          r =>
+            setTimeout(r, 0)
+        );
+
+      }
+
     }
 
     render(result);
 
   } catch (e) {
 
-    showError(e.message);
+    showError(
+      e.message
+    );
+
+  } finally {
+
+    setBusy(false);
 
   }
+
 }
 
-function cubeNumbers() {
+async function cubeNumbers() {
 
   try {
+
+    setBusy(true);
+
+    await new Promise(
+      r => setTimeout(r, 10)
+    );
 
     const { min, max } =
       getRange();
@@ -321,6 +534,8 @@ function cubeNumbers() {
       i += 1n;
     }
 
+    let step = 0n;
+
     while (
       i * i * i <= max
     ) {
@@ -330,15 +545,38 @@ function cubeNumbers() {
       );
 
       i += 1n;
+      step++;
+
+      if (
+        step % 1000n === 0n
+      ) {
+
+        UI.progress.textContent =
+          `${step}`;
+
+        await new Promise(
+          r =>
+            setTimeout(r, 0)
+        );
+
+      }
+
     }
 
     render(result);
 
   } catch (e) {
 
-    showError(e.message);
+    showError(
+      e.message
+    );
+
+  } finally {
+
+    setBusy(false);
 
   }
+
 }
 
 async function copyResults() {
@@ -361,6 +599,7 @@ async function copyResults() {
     );
 
   }
+
 }
 
 function clearAll() {
@@ -368,7 +607,9 @@ function clearAll() {
   document
     .querySelectorAll("input")
     .forEach(
-      el => el.value = ""
+      input => {
+        input.value = "";
+      }
     );
 
   localStorage.clear();
@@ -378,6 +619,7 @@ function clearAll() {
 
   UI.result.textContent =
     "Results will appear here.";
+
 }
 
 document
@@ -392,25 +634,6 @@ document
           e.target.id,
           e.target.value
         );
-
-      }
-    );
-
-    input.addEventListener(
-      "keydown",
-      e => {
-
-        if (
-          e.key === "Enter"
-        ) {
-
-          if (
-            UI.divisor.value.trim()
-          ) {
-            calculateDivisible();
-          }
-
-        }
 
       }
     );
