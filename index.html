@@ -1,10 +1,8 @@
 <!doctype html>
 <html lang="en">
 <head>
-
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-
 <title>Bölünebility | Serhat Kiraz</title>
 
 <link rel="stylesheet" href="style.css">
@@ -12,14 +10,20 @@
 </head>
 <body>
 
-<h1>Bölünebility</h1>
-<p class="subtitle">
-  Number Range Analysis Tool
-</p>
+<header>
 
-<div class="card">
+  <h1>Bölünebility</h1>
 
-  <div class="grid">
+  <p class="subtitle">
+    Number Range Analysis Tool
+  </p>
+
+</header>
+
+<main class="card">
+
+  <section class="range-grid">
+
     <input
       id="min"
       type="text"
@@ -35,9 +39,11 @@
       placeholder="End Number"
       autocomplete="off"
     >
-  </div>
 
-  <div class="grid">
+  </section>
+
+  <section class="divisible-grid">
+
     <input
       id="divisor"
       type="text"
@@ -47,14 +53,17 @@
     >
 
     <button
+      id="btnDivisible"
       type="button"
       onclick="calculateDivisible()"
     >
-      Calculate Divisible
+      Divisible
     </button>
-  </div>
 
-  <div class="grid">
+  </section>
+
+  <section class="common-grid">
+
     <input
       id="num1"
       type="text"
@@ -72,47 +81,71 @@
     >
 
     <button
+      id="btnCommon"
       type="button"
       onclick="commonDivisorsRange()"
     >
-      Common Divisible
+      Common
     </button>
-  </div>
 
-  <div class="actions">
+  </section>
+
+  <section class="actions">
 
     <button
+      id="btnPrime"
       type="button"
       onclick="primeNumbers()"
     >
-      Prime Numbers
+      Prime
     </button>
 
     <button
+      id="btnSquare"
       type="button"
       onclick="squareNumbers()"
     >
-      Square Numbers
+      Square
     </button>
 
     <button
+      id="btnCube"
       type="button"
       onclick="cubeNumbers()"
     >
-      Cube Numbers
+      Cube
     </button>
 
-  </div>
+  </section>
 
-  <div class="toolbar">
+  <section class="status-bar">
 
-    <span id="resultCount">
-      0 results
-    </span>
+    <div class="left-status">
 
-    <div>
+      <span id="resultCount">
+        0 results
+      </span>
+
+      <span
+        id="loading"
+        class="hidden"
+      >
+        Calculating...
+      </span>
+
+    </div>
+
+    <div class="right-status">
+
+      <span
+        id="progress"
+        class="hidden"
+      >
+        0%
+      </span>
 
       <button
+        id="copyBtn"
         type="button"
         onclick="copyResults()"
       >
@@ -120,6 +153,7 @@
       </button>
 
       <button
+        id="resetBtn"
         type="button"
         onclick="clearAll()"
       >
@@ -128,16 +162,16 @@
 
     </div>
 
-  </div>
+  </section>
 
-  <div
+  <section
     id="result"
     class="result"
   >
     Results will appear here.
-  </div>
+  </section>
 
-</div>
+</main>
 
 <script src="script.js"></script>
 
