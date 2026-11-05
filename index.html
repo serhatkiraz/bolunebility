@@ -3,59 +3,654 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Bölünebility | Serhat Kiraz</title>
-<link rel="stylesheet" href="style.css">
+<title>Bölünebility</title>
+
+<style>
+:root{
+--bg:#fff;
+--fg:#111;
+--bd:#e5e5e5;
+--muted:#777;
+}
+
+@media(prefers-color-scheme:dark){
+:root{
+--bg:#000;
+--fg:#fff;
+--bd:#222;
+--muted:#888;
+}
+}
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+max-width:800px;
+margin:auto;
+padding:64px 16px;
+background:var(--bg);
+color:var(--fg);
+font:15px/1.5 system-ui;
+}
+
+h1{
+font-size:clamp(2rem,8vw,3rem);
+letter-spacing:-.05em;
+margin-bottom:4px;
+}
+
+.subtitle{
+color:var(--muted);
+margin-bottom:32px;
+}
+
+.card{
+display:grid;
+gap:12px;
+}
+
+.grid{
+display:grid;
+gap:10px;
+}
+
+.actions{
+display:grid;
+gap:10px;
+}
+
+input,
+button{
+width:100%;
+height:48px;
+padding:0 14px;
+border:1px solid var(--bd);
+border-radius:8px;
+background:transparent;
+color:inherit;
+font:inherit;
+}
+
+button{
+cursor:pointer;
+}
+
+button:hover{
+border-color:var(--fg);
+}
+
+.toolbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:12px;
+font-size:.9rem;
+color:var(--muted);
+}
+
+.toolbar div{
+display:flex;
+gap:8px;
+}
+
+.result{
+min-height:200px;
+padding:16px;
+border:1px solid var(--bd);
+border-radius:8px;
+overflow:auto;
+word-break:break-word;
+}
+
+.numbers{
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+}
+
+.numbers span{
+padding:6px 10px;
+border:1px solid var(--bd);
+border-radius:6px;
+}
+
+.error{
+color:#ef4444;
+}
+
+footer{
+margin-top:32px;
+color:var(--muted);
+}
+
+@media(max-width:640px){
+
+.toolbar{
+flex-direction:column;
+align-items:stretch;
+}
+
+.toolbar div{
+width:100%;
+}
+
+.toolbar button{
+flex:1;
+}
+
+}
+</style>
+
 </head>
 <body>
 
 <h1>Bölünebility</h1>
-<p class="subtitle">Number Range Analysis Tool</p>
+<p class="subtitle">
+Number Range Analysis Tool
+</p>
 
 <div class="card">
 
-  <div class="grid">
-    <input id="min" type="number" placeholder="Start Number">
-    <input id="max" type="number" placeholder="End Number">
-  </div>
+<div class="grid">
+<input id="min" placeholder="Start Number">
+<input id="max" placeholder="End Number">
+</div>
 
-  <div class="grid">
-    <input id="divisor" type="number" placeholder="Divisible By">
-    <button onclick="calculateDivisible()">Calculate</button>
-  </div>
+<div class="grid">
+<input id="divisor" placeholder="Divisible By">
+<button onclick="calculateDivisible()">
+Calculate Divisible
+</button>
+</div>
 
-  <div class="grid">
-    <input id="num1" type="number" placeholder="First Number">
-    <input id="num2" type="number" placeholder="Second Number">
-    <button onclick="commonDivisorsRange()">Common Divisible</button>
-  </div>
+<div class="grid">
+<input id="num1" placeholder="First Number">
+<input id="num2" placeholder="Second Number">
+<button onclick="commonDivisorsRange()">
+Common Divisible
+</button>
+</div>
 
-  <div class="actions">
-    <button onclick="primeNumbers()">Prime</button>
-    <button onclick="squareNumbers()">Square</button>
-    <button onclick="cubeNumbers()">Cube</button>
-  </div>
+<div class="actions">
+<button onclick="primeNumbers()">Prime Numbers</button>
+<button onclick="squareNumbers()">Square Numbers</button>
+<button onclick="cubeNumbers()">Cube Numbers</button>
+</div>
 
-  <div class="toolbar">
-    <span id="resultCount">0 results</span>
+<div class="toolbar">
+<span id="resultCount">0 results</span>
 
-    <div>
-      <button onclick="copyResults()">Copy</button>
-      <button onclick="clearAll()">Reset</button>
-    </div>
-  </div>
+<div>
+<button onclick="copyResults()">
+Copy
+</button>
 
-  <div id="result" class="result">
-    Results will appear here.
-  </div>
+<button onclick="clearAll()">
+Reset
+</button>
+</div>
+</div>
+
+<div id="result" class="result">
+Results will appear here.
+</div>
 
 </div>
 
 <footer>
-  <a href="https://serhatkiraz.github.io/" target="_blank">
-    Serhat Kiraz
-  </a>
+Serhat Kiraz
 </footer>
 
-<script src="script.js"></script>
+<script>
+
+const $ = id =>
+document.getElementById(id);
+
+const UI = {
+min: $("min"),
+max: $("max"),
+divisor: $("divisor"),
+num1: $("num1"),
+num2: $("num2"),
+result: $("result"),
+count: $("resultCount")
+};
+
+function toBigInt(value){
+
+const str = value.trim();
+
+if(!str)
+throw new Error("Number required");
+
+if(!/^-?\d+$/.test(str))
+throw new Error("Integers only");
+
+return BigInt(str);
+}
+
+function getRange(){
+
+const min =
+toBigInt(UI.min.value);
+
+const max =
+toBigInt(UI.max.value);
+
+if(min > max)
+throw new Error(
+"Start must be smaller than end."
+);
+
+return {min,max};
+}
+
+function bigintSqrt(n){
+
+if(n < 0n)
+throw new Error(
+"Negative square root unsupported."
+);
+
+if(n < 2n)
+return n;
+
+let x = n;
+let y = (x + 1n) >> 1n;
+
+while(y < x){
+
+x = y;
+
+y =
+(x + n / x) >> 1n;
+
+}
+
+return x;
+}
+
+function bigintCbrt(n){
+
+if(n === 0n)
+return 0n;
+
+const negative =
+n < 0n;
+
+if(negative)
+n = -n;
+
+let low = 0n;
+let high = n;
+
+while(low <= high){
+
+const mid =
+(low + high) >> 1n;
+
+const cube =
+mid * mid * mid;
+
+if(cube === n)
+return negative
+? -mid
+: mid;
+
+if(cube < n)
+low = mid + 1n;
+else
+high = mid - 1n;
+
+}
+
+return negative
+? -high
+: high;
+}
+
+function isPrime(n){
+
+if(n < 2n)
+return false;
+
+if(n === 2n)
+return true;
+
+if(n === 3n)
+return true;
+
+if(n % 2n === 0n)
+return false;
+
+if(n % 3n === 0n)
+return false;
+
+for(
+let i = 5n;
+i * i <= n;
+i += 6n
+){
+
+if(
+n % i === 0n ||
+n % (i + 2n) === 0n
+){
+return false;
+}
+
+}
+
+return true;
+}
+
+function render(list){
+
+UI.count.textContent =
+`${list.length} results`;
+
+if(!list.length){
+
+UI.result.textContent =
+"No results found.";
+
+return;
+
+}
+
+UI.result.innerHTML = `
+<div class="numbers">
+${list
+.map(
+n =>
+`<span>${n.toString()}</span>`
+)
+.join("")}
+</div>
+`;
+}
+
+function showError(msg){
+
+UI.count.textContent =
+"0 results";
+
+UI.result.innerHTML =
+`<div class="error">${msg}</div>`;
+}
+
+function calculateDivisible(){
+
+try{
+
+const {min,max} =
+getRange();
+
+const divisor =
+toBigInt(
+UI.divisor.value
+);
+
+const result = [];
+
+for(
+let i=min;
+i<=max;
+i+=1n
+){
+
+if(
+i % divisor === 0n
+){
+
+result.push(i);
+
+}
+
+}
+
+render(result);
+
+}catch(e){
+
+showError(e.message);
+
+}
+
+}
+
+function commonDivisorsRange(){
+
+try{
+
+const {min,max} =
+getRange();
+
+const a =
+toBigInt(
+UI.num1.value
+);
+
+const b =
+toBigInt(
+UI.num2.value
+);
+
+const result = [];
+
+for(
+let i=min;
+i<=max;
+i+=1n
+){
+
+if(
+i % a === 0n &&
+i % b === 0n
+){
+
+result.push(i);
+
+}
+
+}
+
+render(result);
+
+}catch(e){
+
+showError(e.message);
+
+}
+
+}
+
+function primeNumbers(){
+
+try{
+
+const {min,max} =
+getRange();
+
+const result = [];
+
+for(
+let i=min;
+i<=max;
+i+=1n
+){
+
+if(isPrime(i))
+result.push(i);
+
+}
+
+render(result);
+
+}catch(e){
+
+showError(e.message);
+
+}
+
+}
+
+function squareNumbers(){
+
+try{
+
+const {min,max} =
+getRange();
+
+const result = [];
+
+let i =
+bigintSqrt(min);
+
+if(i*i < min)
+i += 1n;
+
+while(
+i*i <= max
+){
+
+result.push(i*i);
+
+i += 1n;
+
+}
+
+render(result);
+
+}catch(e){
+
+showError(e.message);
+
+}
+
+}
+
+function cubeNumbers(){
+
+try{
+
+const {min,max} =
+getRange();
+
+const result = [];
+
+let i =
+bigintCbrt(min);
+
+while(
+i*i*i < min
+){
+i += 1n;
+}
+
+while(
+i*i*i <= max
+){
+
+result.push(
+i*i*i
+);
+
+i += 1n;
+
+}
+
+render(result);
+
+}catch(e){
+
+showError(e.message);
+
+}
+
+}
+
+async function copyResults(){
+
+const text =
+UI.result.innerText.trim();
+
+if(!text)
+return;
+
+try{
+
+await navigator.clipboard
+.writeText(text);
+
+}catch{
+
+showError(
+"Copy failed."
+);
+
+}
+
+}
+
+function clearAll(){
+
+document
+.querySelectorAll("input")
+.forEach(
+el => el.value=""
+);
+
+localStorage.clear();
+
+UI.count.textContent =
+"0 results";
+
+UI.result.textContent =
+"Results will appear here.";
+}
+
+document
+.querySelectorAll("input")
+.forEach(input => {
+
+input.addEventListener(
+"input",
+e => {
+
+localStorage.setItem(
+e.target.id,
+e.target.value
+);
+
+}
+);
+
+});
+
+window.addEventListener(
+"DOMContentLoaded",
+() => {
+
+document
+.querySelectorAll("input")
+.forEach(input => {
+
+input.value =
+localStorage.getItem(
+input.id
+) || "";
+
+});
+
+}
+);
+
+</script>
+
 </body>
 </html>
