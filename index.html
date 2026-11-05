@@ -1,61 +1,139 @@
+<!doctype html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Bölünebility | Serhat Kiraz</title>
+
+<link rel="stylesheet" href="style.css">
+
+</head>
 <body>
 
 <h1>Bölünebility</h1>
-<p class="subtitle">Number Range Analysis Tool</p>
+<p class="subtitle">
+  Number Range Analysis Tool
+</p>
 
 <div class="card">
 
   <div class="grid">
-    <input id="min" placeholder="Start Number">
-    <input id="max" placeholder="End Number">
+    <input
+      id="min"
+      type="text"
+      inputmode="numeric"
+      placeholder="Start Number"
+      autocomplete="off"
+    >
+
+    <input
+      id="max"
+      type="text"
+      inputmode="numeric"
+      placeholder="End Number"
+      autocomplete="off"
+    >
   </div>
 
   <div class="grid">
-    <input id="divisor" placeholder="Divisible By">
-    <button onclick="calculateDivisible()">
+    <input
+      id="divisor"
+      type="text"
+      inputmode="numeric"
+      placeholder="Divisible By"
+      autocomplete="off"
+    >
+
+    <button
+      type="button"
+      onclick="calculateDivisible()"
+    >
       Calculate Divisible
     </button>
   </div>
 
   <div class="grid">
-    <input id="num1" placeholder="First Number">
-    <input id="num2" placeholder="Second Number">
-    <button onclick="commonDivisorsRange()">
+    <input
+      id="num1"
+      type="text"
+      inputmode="numeric"
+      placeholder="First Number"
+      autocomplete="off"
+    >
+
+    <input
+      id="num2"
+      type="text"
+      inputmode="numeric"
+      placeholder="Second Number"
+      autocomplete="off"
+    >
+
+    <button
+      type="button"
+      onclick="commonDivisorsRange()"
+    >
       Common Divisible
     </button>
   </div>
 
   <div class="actions">
-    <button onclick="primeNumbers()">
+
+    <button
+      type="button"
+      onclick="primeNumbers()"
+    >
       Prime Numbers
     </button>
 
-    <button onclick="squareNumbers()">
+    <button
+      type="button"
+      onclick="squareNumbers()"
+    >
       Square Numbers
     </button>
 
-    <button onclick="cubeNumbers()">
+    <button
+      type="button"
+      onclick="cubeNumbers()"
+    >
       Cube Numbers
     </button>
+
   </div>
 
   <div class="toolbar">
+
     <span id="resultCount">
       0 results
     </span>
 
     <div>
-      <button onclick="copyResults()">
+
+      <button
+        type="button"
+        onclick="copyResults()"
+      >
         Copy
       </button>
 
-      <button onclick="clearAll()">
+      <button
+        type="button"
+        onclick="clearAll()"
+      >
         Reset
       </button>
+
     </div>
+
   </div>
 
-  <div id="result" class="result">
+  <div
+    id="result"
+    class="result"
+  >
     Results will appear here.
   </div>
 
@@ -64,3 +142,4 @@
 <script src="script.js"></script>
 
 </body>
+</html>
